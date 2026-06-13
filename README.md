@@ -1,5 +1,6 @@
 # pysegway_mqtt
 a MQTT bridge for Segway Scooters based on https://codeberg.org/NootNooot/segway-ninebot-ble-cli
+This repo is under developement and not fully functional
 
 # setup
 Enter mqtt and scooter data to pysegway_config.ini
