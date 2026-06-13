@@ -1,0 +1,16 @@
+services:
+  pysegway-docker:
+    container_name: pysegway
+    build:
+      dockerfile: Dockerfile
+    network_mode: host  # Required for Bluetooth
+    privileged: true    # Required for Bluetooth
+    volumes:
+      - ./pysegway_config.ini:/app/pysegway_config.ini  # Mount Config File to container
+      - /var/run/dbus:/var/run/dbus
+      - /var/run/bluetooth:/var/run/bluetooth
+    devices:
+      - /dev/bluetooth:/dev/bluetooth
+    environment:
+      - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+    restart: always

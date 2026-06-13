@@ -1,0 +1,98 @@
+# SENSORS
+```
+mqtt:
+- sensor:
+    device:
+      manufacturer: Segway
+      model: E300SE
+      model_id: <serial>
+      name: Scooter
+    device_class: distance
+    entity_category: diagnostic
+    expire_after: 172800
+    message_expiry_interval: &id001
+      days: 1
+      hours: 0
+      minutes: 0
+      seconds: 0
+    name: ODO
+    qos: 0.0
+    state_class: measurement
+    state_topic: segway/S1ABCDEFGHIKLMN/info
+    unit_of_measurement: km
+    value_template: '{{ value_json.mileage }}'
+- sensor:
+    device:
+      manufacturer: Segway
+      model: E300SE
+      model_id: <serial>
+      name: Scooter
+    device_class: distance
+    entity_category: diagnostic
+    expire_after: 172800
+    message_expiry_interval: *id001
+    name: Range
+    qos: 0.0
+    state_class: measurement
+    state_topic: segway/S1ABCDEFGHIKLMN/info
+    unit_of_measurement: km
+    value_template: '{{ value_json.range_left }}'
+- sensor:
+    device:
+      manufacturer: Segway
+      model: E300SE
+      model_id: <serial>
+      name: Scooter
+    device_class: battery
+    entity_category: diagnostic
+    expire_after: 172800
+    message_expiry_interval: *id001
+    name: Battery
+    qos: 0.0
+    state_class: measurement
+    state_topic: segway/S1ABCDEFGHIKLMN/info
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.batterie }}'
+```
+
+
+# Automation to request a update with shelly as scooter_charger_switch
+
+alias: Scooter MQTT Update
+description: ""
+triggers:
+  - trigger: time_pattern
+    minutes: /30
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: switch.scooter_charger_switch
+            state:
+              - "on"
+          - condition: numeric_state
+            entity_id: sensor.scooter_charger_power
+            above: 20
+        sequence:
+          - action: mqtt.publish
+            metadata: {}
+            data:
+              evaluate_payload: false
+              qos: "0"
+              retain: false
+              topic: segway/S1ABCDEFGHIKLMN/set
+              payload: update
+      - conditions:
+          - condition: template
+            value_template: "{{ now().hour % 3 == 0 and now().minute == 0 }}"
+        sequence:
+          - action: mqtt.publish
+            metadata: {}
+            data:
+              evaluate_payload: false
+              qos: "0"
+              retain: false
+              topic: segway/S1ABCDEFGHIKLMN/set
+              payload: update
+mode: single
